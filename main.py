@@ -17,6 +17,4 @@ print()
 print("=== SAVED RECORDS IN DATABASE ===")
 rows = get_all_results()
 for row in rows:
-    print(f"ID: {row[0]} | File: {row[1]} | Created: {row[3]}")
-    print(f"JSON preview: {row[2][:100]}...")
-    print()
+    print(f"ID: {row[0]} | File: {row[1]} | Type: {row[2]} | Created: {row[4]}")

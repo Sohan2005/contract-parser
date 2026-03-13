@@ -23,7 +23,16 @@ def root():
 
 @app.post("/upload")
 async def upload_contract(file: UploadFile = File(...)):
-    # BAD: no file type validation — accepts any file
+    # validate file type before processing
+    if not file.filename.endswith(".pdf"):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "error",
+                "message": "Invalid file type. Only PDF files are accepted."
+            }
+        )
+
     temp_path = f"temp_{file.filename}"
 
     with open(temp_path, "wb") as buffer:

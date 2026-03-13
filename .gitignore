@@ -17,3 +17,6 @@ Thumbs.db
 
 # Test files
 test_contract.pdf
+
+# Database
+contracts.db

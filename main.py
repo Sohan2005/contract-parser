@@ -1,6 +1,8 @@
 # main.py
 # FastAPI application entry point
 import json
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import shutil
 import os
 from fastapi import FastAPI, UploadFile, File
@@ -13,6 +15,12 @@ app = FastAPI(
     description="Upload a PDF contract and extract key entities using AI",
     version="1.0.0"
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/app")
+def serve_frontend():
+    return FileResponse("static/index.html")
 
 # Initialize database on startup
 init_db()

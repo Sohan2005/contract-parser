@@ -190,7 +190,7 @@
         <div class="error-box" id="error-box"></div>
 
         <div class="result-box" id="result-box">
-            <h2>✅ Extracted Information</h2>
+            <h2> Extracted Information</h2>
             <div id="result-content"></div>
         </div>
     </div>
@@ -202,35 +202,46 @@
         });
 
         async function uploadFile() {
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
 
-            if (!file) {
-                showError('Please select a PDF file first.');
-                return;
-            }
+    if (!file) {
+        showError('Please select a PDF file first.');
+        return;
+    }
 
-            const formData = new FormData();
-            formData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-            // BAD: no loading state here — UI just freezes while waiting
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+    // show loading state while waiting for response
+    const btn = document.querySelector('.btn');
+    btn.textContent = '⏳ Analyzing...';
+    btn.disabled = true;
 
-                const data = await response.json();
+    document.getElementById('error-box').style.display = 'none';
+    document.getElementById('result-box').style.display = 'none';
 
-                if (data.status === 'success') {
-                    showResult(data.data);
-                } else {
-                    showError(data.message);
-                }
-            } catch (error) {
-                showError('Something went wrong. Please try again.');
-            }
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            showResult(data.data);
+        } else {
+            showError(data.message);
         }
+    } catch (error) {
+        showError('Something went wrong. Please try again.');
+    } finally {
+        // Always restore button regardless of success or failure
+        btn.textContent = 'Analyze Contract';
+        btn.disabled = false;
+    }
+}
 
         function showResult(data) {
             document.getElementById('error-box').style.display = 'none';

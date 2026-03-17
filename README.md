@@ -5,8 +5,8 @@ An automated contract and compliance document parser powered by AI.
 Upload a PDF contract → AI extracts key entities → Returns structured JSON → Saved to database.
 
 ## 🚀 Live Demo
-👉 [https://your-app-name.onrender.com](https://contract-parser.onrender.com)
-📖 API Docs: [https://your-app-name.onrender.com/docs](https://contract-parser.onrender.com/docs)
+👉 [Main Program LINK](https://contract-parser.onrender.com)
+📖 API Docs: [API DOCS LINK](https://contract-parser.onrender.com/docs)
 
 ---
 

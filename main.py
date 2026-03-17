@@ -33,6 +33,10 @@ init_db()
 
 @app.get("/")
 def root():
+    return FileResponse("static/index.html")
+
+@app.get("/health")
+def health():
     return {"message": "Contract Parser API is running"}
 
 @app.post("/upload")

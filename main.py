@@ -9,6 +9,12 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from app.pipeline import run_pipeline
 from app.database import init_db, save_result, get_all_results, get_result_by_id
+from app.errors import (
+    EmptyDocumentError,
+    PDFExtractionError,
+    AIParsingError,
+    FileTooLargeError
+)
 
 app = FastAPI(
     title="Contract Parser API",
@@ -31,7 +37,7 @@ def root():
 
 @app.post("/upload")
 async def upload_contract(file: UploadFile = File(...)):
-    # validate file type before processing
+    # Validate file type
     if not file.filename.endswith(".pdf"):
         return JSONResponse(
             status_code=400,
@@ -54,10 +60,34 @@ async def upload_contract(file: UploadFile = File(...)):
             "filename": file.filename,
             "data": result
         })
-    except ValueError as e:
+
+    except FileTooLargeError as e:
         return JSONResponse(
             status_code=400,
             content={"status": "error", "message": str(e)}
+        )
+    except EmptyDocumentError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": str(e)}
+        )
+    except PDFExtractionError as e:
+        return JSONResponse(
+            status_code=422,
+            content={"status": "error", "message": str(e)}
+        )
+    except AIParsingError as e:
+        return JSONResponse(
+            status_code=502,
+            content={"status": "error", "message": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "An unexpected error occurred. Please try again."
+            }
         )
     finally:
         if os.path.exists(temp_path):

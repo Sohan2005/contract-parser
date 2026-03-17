@@ -3,7 +3,9 @@
 import os
 import json
 from google import genai
+from google.genai import errors as genai_errors
 from dotenv import load_dotenv
+from app.errors import AIParsingError
 
 load_dotenv()
 
@@ -53,11 +55,27 @@ Contract text to analyze:
 {text}
 """
 
-    # Pinned to gemini-2.5-flash — upgrade intentionally, not automatically
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+    try:
+        # Pinned to gemini-2.5-flash — upgrade intentionally, not automatically
+        # Check for new models at: aistudio.google.com
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+    except Exception as e:
+        error_msg = str(e)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            raise AIParsingError(
+                "AI service rate limit reached. Please wait a moment and try again."
+            )
+        elif "API_KEY" in error_msg or "401" in error_msg:
+            raise AIParsingError(
+                "Invalid API key. Please check your configuration."
+            )
+        else:
+            raise AIParsingError(
+                f"AI service error: {error_msg}"
+            )
 
     raw = response.text.strip()
 
@@ -68,5 +86,10 @@ Contract text to analyze:
             raw = raw[4:]
         raw = raw.strip()
 
-    parsed = json.loads(raw)
-    return parsed
+    try:
+        parsed = json.loads(raw)
+        return parsed
+    except json.JSONDecodeError:
+        raise AIParsingError(
+            "AI returned an unexpected response format. Please try again."
+        )
